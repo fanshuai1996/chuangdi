@@ -12,10 +12,10 @@ import lianjieshujuku
 from shengchengMD5 import sheng_md5
 from zhanghaomimalibiao import zhmmlist
 from flask_login import login_required,login_user,current_user
-
+from wsgiref.simple_server import make_server
 
 app=Flask(__name__,template_folder='templates',static_folder='static',static_url_path='/static')
-
+# app=Flask(__name__)
 # @app.route('/')
 # def index():
 #     return render_template('index.html')
@@ -70,12 +70,10 @@ def login():
 @app.route('/register',methods=['GET','POST'])
 def register():
     method=request.method
-    print(method)
     if method=="GET":
         return render_template('register.html')
     else:
         user_dict=request.form.to_dict()
-        print(user_dict)
         #生成md5唯一值
         username=user_dict['username']
         userpwd=user_dict['userpwd']
@@ -120,13 +118,15 @@ def heimingdan():
 @app.route('/zhuanhua')
 def zhuanhuaye():
     fenci_dict = {'': ''}
+    print('zhuanhuazhuanhuazhuanhuazhuanhuazhuanhua')
     return render_template('index.html',data=fenci_dict)
 
 @app.route('/jilu')
 def jiluyemian():
     sql='select * from fenci'
     data1=lianjieshujuku.shujuku(sql)
-    print(data1)
+
+    print('jilujilujilujilu')
     fenci_dict = {'': ''}
     return render_template('index.html',data=fenci_dict,sql_data=data1)
 
@@ -140,12 +140,12 @@ def shanchujilu(id):
 @app.route('/wode')
 def wodeyemian():
     fenci_dict = {'': ''}
+    print('wodewodewodewodewodewodewode')
     return render_template('index.html',data=fenci_dict)
 
 @app.route('/zhuanhua',methods=['POST'])
 def zhuanhua():
     data=request.form.to_dict()
-    print(data)
     txt=data['init_data']
     if txt == "":
         return "<script>alert('数据为空，请输入文本');window.location.href='/'</script>"
@@ -156,29 +156,24 @@ def zhuanhua():
     txt=re.findall(pat,txt,re.S)
     txt=''.join(txt)
     outdir=''
-    print(txt)
     for word in txt:
         if word not in hei_text:
             outdir+=word
-    print(outdir)
     sql_outdir=outdir[1:6]+'......'
-    print(sql_outdir)
     searchs=jieba.lcut(outdir,cut_all=True)
     fenci_dict={}
     for text in searchs:
         fenci_dict[text]=searchs.count(text)
-    print(fenci_dict)
     #获取词频前三个词
     cipin=sorted([(k,v) for k,v in fenci_dict.items()],key=lambda x:x[1],reverse=True)
     qiansan=cipin[0:3]
-    w=WordCloud(font_path=r'C:\Windows\Fonts\simhei.ttf',background_color='white')
+    w=WordCloud(font_path='./static/simhei.ttf',background_color='white')
     ciyu=w.generate_from_frequencies(fenci_dict)
     if os.path.exists("./static/img/fenci1.png"):
         os.remove('./static/img/fenci1.png')
     plt.imshow(ciyu)
     plt.axis('off')
     ciyu.to_file('./static/img/fenci1.png')
-    print(qiansan)
     sql_qiansan=str(qiansan)
     sql_date=time.strftime('%Y-%m-%d %H:%M:%S',time.localtime())
     sql=f'insert into fenci(fenciciyu,cipinqiansan,date) values("{sql_outdir}","{sql_qiansan}","{sql_date}")'
@@ -186,12 +181,10 @@ def zhuanhua():
     return render_template('index.html',data=fenci_dict,img='../static/img/fenci1.png',data1=qiansan)
 
 
-
-
-
 if __name__ == '__main__':
-    app.run(host='127.0.0.1',port=8888,debug=True)
-
+    # app.run(host='localhost',port=8888,debug=True)
+    server = make_server('172.22.106.178',5050, app)
+    server.serve_forever()
 
 
 
