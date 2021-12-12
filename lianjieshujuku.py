@@ -3,11 +3,11 @@ import pymysql
 def shujuku(sql):
     db=pymysql.connect(
                 user='root',  # The first four arguments is based on DB-API 2.0 recommendation.
-                password="123456",
-                host='localhost',
+                password="aaa123456",
+                host='172.22.106.178',
                 database='fenci',
                 port=3306,
-                charset='utf8mb4',
+                charset='utf8',
                 cursorclass=pymysql.cursors.DictCursor
                 )
     cursor=db.cursor()
